@@ -7,9 +7,9 @@ function login(params) {
     return api.post(`${baseUrl}`, params);
 }
 
-function signup(params) {
+function register(params) {
     const baseUrl = '/auth/register';
     return api.post(`${baseUrl}`, params);
 }
 
-export { login, signup };
+export { login, register };

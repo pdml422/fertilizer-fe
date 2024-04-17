@@ -2,6 +2,7 @@ import React from 'react'
 import {Button, Card, Checkbox, Form, Input} from 'antd'
 import styled from 'styled-components'
 import {Link, useNavigate} from 'react-router-dom'
+import {register} from "../services/auth"
 import axios from "axios";
 
 const Wrapper = styled.section`
@@ -35,7 +36,7 @@ const Register = () => {
 
     const onFinish = async (values) => {
         try {
-            const response = await axios.post('http://localhost:8080/auth/register', values);
+            const response = await register(values);
             console.log('Registration successful:',response.data);
             navigate('/login')
         } catch (error) {

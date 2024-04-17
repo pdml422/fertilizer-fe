@@ -38,10 +38,10 @@ const Login = () => {
             const { data } = await login(values)
             setCookie('accessToken', data.token)
             localStorage.setItem('accessToken', data.token)
-            sessionStorage.setItem('user', true)
+            sessionStorage.setItem('isLogin', true)
             let decodedToken = jwtDecode(data.token);
             if (decodedToken.groups[0] === 'ADMIN') {
-                navigate('/admin')
+                navigate('/admin/manage-user')
             } else {
                 const config = {
                     headers: {

@@ -1,12 +1,14 @@
 import React, {Suspense} from 'react'
 import {useRoutes} from 'react-router-dom'
-// import FullLayout from './layouts/FullLayout'
-// import DefaultLayout from './layouts/DefaultLayout'
+import AdminLayout from './layout/AdminLayout'
+import DefaultLayout from './layout/DefaultLayout'
 
 const LoginPage = React.lazy(() => import('./pages/Login'))
 const RegisterPage = React.lazy(() => import('./pages/Register'))
 
-// const HomePage = React.lazy(() => import('./pages/Home'))
+const ManageUser = React.lazy(() => import('./pages/Admin/ManageUser'))
+// const ManageFile = React.lazy(() => import('./pages/Admin/ManageFile'))
+
 // const UserPage = React.lazy(() => import('./pages/User'))
 // const PostPage = React.lazy(() => import('./pages/Post'))
 
@@ -21,7 +23,7 @@ export const LoadComponent = ({component: Component}) => (
 const AllRoutes = () => {
     return useRoutes([
         {
-            // element: <DefaultLayout/>,
+            element: <DefaultLayout/>,
             children: [
                 {
                     path: '/login',
@@ -34,15 +36,15 @@ const AllRoutes = () => {
             ]
         },
         {
-            // element: <FullLayout/>,
+            element: <AdminLayout/>,
             children: [
                 {
-                    path: '',
-                    // element: <LoadComponent component={HomePage}/>
+                    path: '/admin/manage-user',
+                    element: <LoadComponent component={ManageUser}/>
                 },
                 {
-                    path: '/users',
-                    // element: <LoadComponent component={UserPage}/>
+                    // path: '/admin/manage-file',
+                    // element: <LoadComponent component={ManageFile}/>
                 },
                 {
                     path: '/posts',
