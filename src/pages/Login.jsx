@@ -51,7 +51,7 @@ const Login = () => {
                 const response = await axios.get('http://localhost:8080/user/me', config);
                 const userId = response.data.id;
                 localStorage.setItem('userId', userId);
-                navigate('/user')
+                navigate('/user/view-file')
             }
 
         } catch (e) {

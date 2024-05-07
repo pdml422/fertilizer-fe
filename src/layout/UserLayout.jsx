@@ -38,7 +38,7 @@ const UserLayout = () => {
     let location = useLocation()
     const [current, setCurrent] = useState('home')
     const [collapsed, setCollapsed] = useState(false)
-    const user = sessionStorage.getItem('user')
+    const user = sessionStorage.getItem('isLogin')
 
     if (!user) {
         return <Navigate to="/login" />
