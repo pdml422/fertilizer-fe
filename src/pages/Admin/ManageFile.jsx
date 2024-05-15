@@ -152,7 +152,7 @@ const ManageFile = () => {
                             okText="Yes"
                             cancelText="No"
                         >
-                            <Button danger> Delete </Button>
+                            <Button type="link" danger> Delete </Button>
                         </Popconfirm>
                     </Space>
                 ),

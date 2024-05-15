@@ -1,23 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Modal, notification, Space, Table, Spin } from 'antd';
+import {Button, Modal, notification, Space, Table, Spin} from 'antd';
 import { Link } from 'react-router-dom';
 
 const ViewFile = () => {
     const [hdrFile, setHdrFile] = useState(null);
     const [imgFile, setImgFile] = useState(null);
+    const [tifFile, setTifFile] = useState(null);
     const [data, setData] = useState([]);
     const [selectedData, setSelectedData] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [isAddHyperImageModalVisible, setAddHyperImageModalVisible] = useState(false);
+    const [isAddMultiImageModalVisible, setAddMultiImageModalVisible] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
-
-    const addFileButtonStyle = {
-        display: 'flex',
-        gap: '5px',
-        marginBottom: '16px',
-        justifyContent: 'flex-end',
-    };
 
     const loadingOverlayStyle = {
         position: 'fixed',
@@ -46,29 +41,44 @@ const ViewFile = () => {
         await deleteImageFile(selectedData);
     };
 
-    const showUploadModal = () => {
-        setIsUploadModalOpen(true);
+    const handleCancel = () => {
+        setIsDeleteModalOpen(false);
+        setAddHyperImageModalVisible(false);
+        setAddMultiImageModalVisible(false);
+        setSelectedData(null);
     };
 
-    const handleUploadOk = async () => {
+    const showHyperModal = () => {
+        setAddHyperImageModalVisible(true);
+    };
+
+    const showMultiModal = () => {
+        setAddMultiImageModalVisible(true);
+    };
+
+    const handleAddHyperImageOk = async () => {
         setIsUploading(true);
-        setIsUploadModalOpen(false);
+        setAddHyperImageModalVisible(false);
 
         try {
-            await handleUploadFiles();
-
+            await handleHyperImage();
         } finally {
             setIsUploading(false);
         }
     };
 
-    const handleCancel = () => {
-        setIsDeleteModalOpen(false);
-        setIsUploadModalOpen(false);
-        setSelectedData(null);
+    const handleAddMultiImageOk = async () => {
+        setIsUploading(true);
+        setAddMultiImageModalVisible(false);
+
+        try {
+            await handleMultiImage();
+        } finally {
+            setIsUploading(false);
+        }
     };
 
-    const handleFileChange = (event) => {
+    const handleHyperChange = (event) => {
         const file = event.target.files[0];
 
         if (!file) {
@@ -89,7 +99,26 @@ const ViewFile = () => {
         }
     };
 
-    const handleUploadFiles = async () => {
+    const handleMultiChange = (event) => {
+        const file = event.target.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const fileType = file.name.split('.').pop().toLowerCase();
+
+        if (fileType === 'tif') {
+            setTifFile(file);
+        } else {
+            notification.error({
+                message: 'Error',
+                description: 'Unsupported file type. Please choose a TIF (.tif) file.',
+            });
+        }
+    };
+
+    const handleHyperImage = async () => {
         try {
             if (!hdrFile || !imgFile) {
                 notification.error({
@@ -100,10 +129,10 @@ const ViewFile = () => {
             }
 
             const formData = new FormData();
-            formData.append('header', hdrFile);
-            formData.append('image', imgFile);
+            formData.append('hdr', hdrFile);
+            formData.append('img', imgFile);
 
-            const response = await axios.post('http://localhost:8080/image/hyper', formData, {
+            await axios.post('http://localhost:8080/image/hyper', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -129,6 +158,65 @@ const ViewFile = () => {
         }
     };
 
+    const handleMultiImage = async () => {
+        try {
+            if (!tifFile) {
+                notification.error({
+                    message: 'Error',
+                    description: 'Please choose a TIF (.tif) file to upload.',
+                });
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('tif', tifFile);
+
+            await axios.post('http://localhost:8080/image/multi', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                    UserId: localStorage.getItem('userId'),
+                },
+            });
+
+            notification.success({
+                message: 'Success',
+                description: 'Files uploaded successfully.',
+            });
+
+            await fetchImageFile();
+        } catch (error) {
+            console.error('Error uploading files:', error.response?.data || error.message);
+
+            notification.error({
+                message: 'Error',
+                description: 'Failed to upload files. Please try again.',
+            });
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const deleteImageFile = async (selectedItem) => {
+        try {
+            const configHeader = {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                },
+            };
+            await axios.delete(`http://localhost:8080/image/${selectedItem.id}`, configHeader);
+            await fetchImageFile();
+            notification.success({
+                message: 'Data deleted successfully',
+            });
+        } catch (error) {
+            console.error('Error deleting file:', error);
+            notification.error({
+                message: 'Error deleting file',
+            });
+        }
+    };
+
     const fetchImageFile = async () => {
         try {
             const config = {
@@ -145,30 +233,6 @@ const ViewFile = () => {
         }
     };
 
-    const deleteImageFile = async (selectedItem) => {
-        try {
-            const configHeader = {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-                },
-            };
-            await axios.delete(`http://localhost:8080/image/hyper/${selectedItem.id}`, configHeader);
-            await fetchImageFile();
-            notification.success({
-                message: 'Data deleted successfully',
-            });
-        } catch (error) {
-            console.error('Error deleting file:', error);
-            notification.error({
-                message: 'Error deleting file',
-            });
-        }
-    };
-
-    const viewImage = async (values) => {
-        localStorage.setItem('id', values.id);
-    };
-
     useEffect(() => {
         fetchImageFile();
     }, []);
@@ -176,35 +240,35 @@ const ViewFile = () => {
     const columns = [
         {
             title: 'File',
-            width: 100,
+            // width: 100,
             dataIndex: 'path',
             fixed: 'left',
             render: (text) => {
-                const fileName = text.split('/').pop(``);
+                const fileName = text.split('/').pop();
                 return <span>{fileName}</span>;
             },
         },
         {
             title: 'Type',
             dataIndex: 'type',
-            width: 120,
+            // width: 120,
         },
         {
             title: 'Action',
             fixed: 'right',
-            width: 100,
+            // width: 100,
             render: (text, record) => (
                 <Space size="middle">
-                    <a style={{ color: 'red' }} onClick={() => showDeleteModal(record)}>
+                    <Button type="link" danger onClick={() => showDeleteModal(record)}>
                         Delete
-                    </a>
-                    {record.type === 'header' && (
-                        <Link to={`/users/image`}>
-                            <a style={{ color: 'blue' }} onClick={() => viewImage(record)}>
-                                View
-                            </a>
-                        </Link>
-                    )}
+                    </Button>
+                    {/*{record.type === 'header' && (*/}
+                    {/*    <Link to={`/users/image`}>*/}
+                    {/*        <a style={{ color: 'blue' }} onClick={() => viewImage(record)}>*/}
+                    {/*            View*/}
+                    {/*        </a>*/}
+                    {/*    </Link>*/}
+                    {/*)}*/}
                 </Space>
             ),
         },
@@ -212,13 +276,17 @@ const ViewFile = () => {
 
     return (
         <>
-            <div style={addFileButtonStyle}>
-                <Button onClick={showUploadModal} type="primary">
-                    Upload Files
+            <div style={{marginBottom: '16px'}}>
+                <Button onClick={showHyperModal} type="primary">
+                    Upload Hyperspectral Image
+                </Button>
+
+                <Button style={{marginLeft: '10px'}} onClick={showMultiModal} type="primary">
+                    Upload Multispectral Image
                 </Button>
             </div>
 
-            <Table columns={columns} dataSource={data} scroll={{ x: 1500 }} sticky={{ offsetHeader: 64 }} />
+            <Table columns={columns} dataSource={data}/>
 
             {isUploading && (
                 <div style={loadingOverlayStyle}>
@@ -229,7 +297,7 @@ const ViewFile = () => {
             {selectedData && (
                 <Modal
                     title="Confirm Delete"
-                    visible={isDeleteModalOpen}
+                    open={isDeleteModalOpen}
                     onOk={handleDeleteOk}
                     onCancel={handleCancel}
                 >
@@ -238,15 +306,25 @@ const ViewFile = () => {
             )}
 
             <Modal
-                title="Confirm Upload"
-                visible={isUploadModalOpen}
-                onOk={handleUploadOk}
+                title="Upload Hyperspectral Image"
+                open={isAddHyperImageModalVisible}
+                onOk={handleAddHyperImageOk}
                 onCancel={handleCancel}
             >
                 <p>HDR file</p>
-                <input type="file" accept=".hdr" onChange={handleFileChange} />
+                <input type="file" accept=".hdr" onChange={handleHyperChange}/>
                 <p>IMG file</p>
-                <input type="file" accept=".img" onChange={handleFileChange} />
+                <input type="file" accept=".img" onChange={handleHyperChange}/>
+            </Modal>
+
+            <Modal
+                title="Upload Multispectral Image"
+                open={isAddMultiImageModalVisible}
+                onOk={handleAddMultiImageOk}
+                onCancel={handleCancel}
+            >
+                <p>TIF file</p>
+                <input type="file" accept=".tif" onChange={handleMultiChange}/>
             </Modal>
         </>
     );

@@ -47,10 +47,6 @@ const AllRoutes = () => {
                     path: '/admin/manage-file',
                     element: <LoadComponent component={ManageFile}/>
                 },
-                {
-                    path: '/posts',
-                    // element: <LoadComponent component={PostPage}/>
-                }
             ]
         },
         {

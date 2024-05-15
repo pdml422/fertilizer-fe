@@ -6,7 +6,7 @@ import {
     ProfileOutlined,
     ArrowLeftOutlined,
     PictureOutlined,
-    FileOutlined, FolderOutlined
+    FileOutlined, FolderOutlined, FolderOpenOutlined
 } from '@ant-design/icons'
 import { Layout, Menu, Button } from 'antd'
 import { Navigate, Outlet, Link } from 'react-router-dom'
@@ -36,8 +36,7 @@ const StyledLayout = styled(Layout)`
 
 const UserLayout = () => {
     let location = useLocation()
-    const [current, setCurrent] = useState('home')
-    const [collapsed, setCollapsed] = useState(false)
+    const [current, setCurrent] = useState('view-file')
     const user = sessionStorage.getItem('isLogin')
 
     if (!user) {
@@ -59,16 +58,16 @@ const UserLayout = () => {
                     mode="inline"
                     selectedKeys={[current]}
                 >
-                    <Link to="/users/files">
+                    <Link to="/user/view-file">
                         <Menu.Item
-                            eventKey="home"
-                            icon={<FileOutlined />}
-                            onClick={() => setCurrent('home')}
+                            eventKey="view-file"
+                            icon={<FolderOpenOutlined />}
+                            onClick={() => setCurrent('view-file')}
                         >
                             Files
                         </Menu.Item>
                     </Link>
-                    <Link to="users/image">
+                    <Link to="user/image">
                         <Menu.Item
                             eventKey="about"
                             icon={<PictureOutlined />}
@@ -77,7 +76,7 @@ const UserLayout = () => {
                             Image Data
                         </Menu.Item>
                     </Link>
-                    <Link to="users/data">
+                    <Link to="user/data">
                         <Menu.Item
                             eventKey="posts"
                             icon={<FolderOutlined />}
@@ -86,7 +85,7 @@ const UserLayout = () => {
                             Statistical Data
                         </Menu.Item>
                     </Link>
-                    <Link to="users/profile">
+                    <Link to="user/profile">
                         <Menu.Item
                             eventKey="profile"
                             icon={<ProfileOutlined />}
@@ -119,16 +118,7 @@ const UserLayout = () => {
                         background: 'white'
                     }}
                 >
-                    <Button
-                        type="text"
-                        icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                        onClick={() => setCollapsed(!collapsed)}
-                        style={{
-                            fontSize: '16px',
-                            width: 64,
-                            height: 64
-                        }}
-                    />
+
                 </Header>
                 <Content
                     style={{
