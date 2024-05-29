@@ -11,7 +11,7 @@ const ManageUser = React.lazy(() => import('./pages/Admin/ManageUser'))
 const ManageFile = React.lazy(() => import('./pages/Admin/ManageFile'))
 
 const ViewFile = React.lazy(() => import('./pages/User/ViewFile'))
-// const PostPage = React.lazy(() => import('./pages/Post'))
+const ViewImage = React.lazy(() => import('./pages/User/ViewHyperImage'))
 
 const loading = () => <div className=""/>
 
@@ -55,6 +55,10 @@ const AllRoutes = () => {
                 {
                     path: '/user/view-file',
                     element: <LoadComponent component={ViewFile}/>
+                },
+                {
+                    path: 'user/view-hyper-image',
+                    element: <LoadComponent component={ViewImage}/>
                 }
             ]
         }

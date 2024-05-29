@@ -8,9 +8,10 @@ import {
     PictureOutlined,
     FileOutlined, FolderOutlined, FolderOpenOutlined
 } from '@ant-design/icons'
-import { Layout, Menu, Button } from 'antd'
+import {Layout, Menu, Button, Space} from 'antd'
 import { Navigate, Outlet, Link } from 'react-router-dom'
 import styled from 'styled-components'
+import SubMenu from "antd/es/menu/SubMenu";
 
 const { Header, Sider, Content } = Layout
 
@@ -67,48 +68,30 @@ const UserLayout = () => {
                             Files
                         </Menu.Item>
                     </Link>
-                    <Link to="user/image">
-                        <Menu.Item
-                            eventKey="about"
-                            icon={<PictureOutlined />}
-                            onClick={() => setCurrent('about')}
-                        >
-                            Image Data
-                        </Menu.Item>
-                    </Link>
-                    <Link to="user/data">
-                        <Menu.Item
-                            eventKey="posts"
-                            icon={<FolderOutlined />}
-                            onClick={() => setCurrent('posts')}
-                        >
-                            Statistical Data
-                        </Menu.Item>
-                    </Link>
-                    <Link to="user/profile">
-                        <Menu.Item
-                            eventKey="profile"
-                            icon={<ProfileOutlined />}
-                            onClick={() => setCurrent('profile')}
-                        >
-                            Profile
-                        </Menu.Item>
-                    </Link>
+
+                    <Menu.ItemGroup title="View Image">
+                        <Link to="user/view-hyper-image">
+                            <Menu.Item
+                                eventKey="view-hyper-image"
+                                onClick={() => setCurrent('view-hyper-image')}
+                            >
+                                <PictureOutlined /> Hyperspectral Image
+                            </Menu.Item>
+                        </Link>
+                    </Menu.ItemGroup>
+
                     <Link to="/login">
                         <Menu.Item style={logoutStyle}
                                    eventKey="logout"
                                    icon={<ArrowLeftOutlined />}
                                    onClick={() => {
                                        setCurrent('logout')
-                                       localStorage.removeItem('red');
-                                       localStorage.removeItem('green');
-                                       localStorage.removeItem('blue');
-                                       localStorage.removeItem('id');
                         }}
                         >
                             Logout
                         </Menu.Item>
                     </Link>
+
                 </Menu>
             </Sider>
             <Layout>
