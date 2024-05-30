@@ -69,16 +69,15 @@ const UserLayout = () => {
                         </Menu.Item>
                     </Link>
 
-                    <Menu.ItemGroup title="View Image">
-                        <Link to="user/view-hyper-image">
-                            <Menu.Item
-                                eventKey="view-hyper-image"
-                                onClick={() => setCurrent('view-hyper-image')}
-                            >
-                                <PictureOutlined /> Hyperspectral Image
-                            </Menu.Item>
-                        </Link>
-                    </Menu.ItemGroup>
+                    <Link to="user/view-image">
+                        <Menu.Item
+                            eventKey="view-image"
+                            icon={<PictureOutlined />}
+                            onClick={() => setCurrent('view-image')}
+                        >
+                            View Image
+                        </Menu.Item>
+                    </Link>
 
                     <Link to="/login">
                         <Menu.Item style={logoutStyle}
