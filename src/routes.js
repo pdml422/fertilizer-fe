@@ -12,6 +12,7 @@ const ManageFile = React.lazy(() => import('./pages/Admin/ManageFile'))
 
 const ViewFile = React.lazy(() => import('./pages/User/ViewFile'))
 const ViewImage = React.lazy(() => import('./pages/User/ViewImage'))
+const Predict = React.lazy(() => import('./pages/User/Predict'))
 
 const loading = () => <div className=""/>
 
@@ -59,6 +60,10 @@ const AllRoutes = () => {
                 {
                     path: 'user/view-image',
                     element: <LoadComponent component={ViewImage}/>
+                },
+                {
+                    path: 'user/predict',
+                    element: <LoadComponent component={Predict}/>
                 }
             ]
         }

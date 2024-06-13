@@ -8,6 +8,7 @@ const ManageFile = () => {
     const [hdrFile, setHdrFile] = useState(null);
     const [imgFile, setImgFile] = useState(null);
     const [tifFile, setTifFile] = useState(null);
+    const [h5File, setH5File] = useState(null);
     const [fetchedUsers, setFetchedUsers] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
 
@@ -171,6 +172,9 @@ const ManageFile = () => {
                 <Button type="primary" style={{marginTop: '10px', marginLeft: '10px'}} onClick={() => showAddMultiImageModal(record.id)}>
                     Add Multispectral Image
                 </Button>
+                <Button type="primary" style={{marginTop: '10px', marginLeft: '10px'}} onClick={() => showAddModelModal(record.id)}>
+                    Add Model
+                </Button>
             </div>
         );
     };
@@ -197,6 +201,7 @@ const ManageFile = () => {
     // Add Image Modal
     const [isAddHyperImageModalVisible, setAddHyperImageModalVisible] = useState(false);
     const [isAddMultiImageModalVisible, setAddMultiImageModalVisible] = useState(false);
+    const [isAddModelModalVisible, setAddModelModalVisible] = useState(false);
     const [currentUserId, setCurrentUserId] = useState(null);
 
     const handleAddHyperImageCancel = () => {
@@ -207,6 +212,10 @@ const ManageFile = () => {
         setAddMultiImageModalVisible(false);
     };
 
+    const handleAddModelCancel = () => {
+        setAddModelModalVisible(false);
+    };
+
     const showAddHyperImageModal = (userId) => {
         setCurrentUserId(userId);
         setAddHyperImageModalVisible(true);
@@ -215,6 +224,11 @@ const ManageFile = () => {
     const showAddMultiImageModal = (userId) => {
         setCurrentUserId(userId);
         setAddMultiImageModalVisible(true);
+    };
+
+    const showAddModelModal = (userId) => {
+        setCurrentUserId(userId);
+        setAddModelModalVisible(true);
     };
 
     const handleAddHyperImageOk = async () => {
@@ -267,6 +281,30 @@ const ManageFile = () => {
         }
     };
 
+    const handleAddModelOk = async () => {
+        setAddModelModalVisible(false);
+        try {
+            const values = await form.validateFields();
+
+            const modelData = {h5: values};
+
+            setIsUploading(true); // Set loading to true before starting the upload
+
+            await addUserModel(currentUserId, modelData);
+
+            // After the upload is complete, set loading to false and close the modal
+            setIsUploading(false);
+
+        } catch (error) {
+            console.error('Error adding image:', error);
+
+            // Handle error if necessary
+
+            // Ensure loading is set to false even in case of an error
+            setIsUploading(false);
+        }
+    };
+
     const handleHyperFile = (event) => {
         const file = event.target.files[0];
 
@@ -303,6 +341,25 @@ const ManageFile = () => {
             notification.error({
                 message: 'Error',
                 description: 'Unsupported file type. Please choose a TIF (.tif) file.',
+            });
+        }
+    };
+
+    const handleModelFile = (event) => {
+        const file = event.target.files[0];
+
+        if (!file) {
+            return;
+        }
+        const fileType = file.name.split('.').pop().toLowerCase();
+
+        if (fileType === 'h5') {
+            setH5File(file);
+        } else {
+            // Show an error notification for unsupported file types
+            notification.error({
+                message: 'Error',
+                description: 'Unsupported file type. Please choose a H5 (.h5) file.',
             });
         }
     };
@@ -402,6 +459,53 @@ const ManageFile = () => {
         }
     };
 
+    const addUserModel = async (userId) => {
+        try {
+            if (!h5File) {
+                notification.error({
+                    message: 'Error',
+                    description: 'Please choose a H5 (.h5) file to upload.',
+                });
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('h5', h5File);
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                    UserId: userId,
+                    'Content-Type': 'multipart/form-data',
+                },
+            };
+
+            // Asynchronous upload
+            await axios.post(`http://localhost:8080/predict/model`, formData, config);
+
+            // Immediately fetch and update image data for the user
+            await fetchImageAndSetData(userId);
+
+            // Update data with the added image immediately
+            // setData((prevData) => {
+            //     return prevData.map((user) => {
+            //         if (user.id === userId) {
+            //             return {
+            //                 ...user,
+            //                 files: [...(user.files || []), { /* Add properties for the new image */}],
+            //             };
+            //         }
+            //         return user;
+            //     });
+            // });
+
+            message.success('Model added successfully');
+        } catch (error) {
+            console.error('Error adding image:', error);
+            message.error('Error adding image');
+        }
+    };
+
     return (
         <>
             {isUploading && showLoadingOverlay()}
@@ -436,6 +540,16 @@ const ManageFile = () => {
             >
                 <p>TIF file</p>
                 <input type="file" accept=".tif" onChange={handleMultiFile}/>
+            </Modal>
+
+            <Modal
+                title="Add model"
+                open={isAddModelModalVisible}
+                onOk={handleAddModelOk}
+                onCancel={handleAddModelCancel}
+            >
+                <p>TIF file</p>
+                <input type="file" accept=".h5" onChange={handleModelFile}/>
             </Modal>
 
         </>

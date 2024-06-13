@@ -7,11 +7,13 @@ const ViewFile = () => {
     const [hdrFile, setHdrFile] = useState(null);
     const [imgFile, setImgFile] = useState(null);
     const [tifFile, setTifFile] = useState(null);
+    const [h5File, setH5File] = useState(null);
     const [data, setData] = useState([]);
     const [selectedData, setSelectedData] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isAddHyperImageModalVisible, setAddHyperImageModalVisible] = useState(false);
     const [isAddMultiImageModalVisible, setAddMultiImageModalVisible] = useState(false);
+    const [isAddModelModalVisible, setAddModelModalVisible] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
     const loadingOverlayStyle = {
@@ -45,6 +47,7 @@ const ViewFile = () => {
         setIsDeleteModalOpen(false);
         setAddHyperImageModalVisible(false);
         setAddMultiImageModalVisible(false);
+        setAddModelModalVisible(false)
         setSelectedData(null);
     };
 
@@ -54,6 +57,10 @@ const ViewFile = () => {
 
     const showMultiModal = () => {
         setAddMultiImageModalVisible(true);
+    };
+
+    const showModelModal = () => {
+        setAddModelModalVisible(true);
     };
 
     const handleAddHyperImageOk = async () => {
@@ -73,6 +80,17 @@ const ViewFile = () => {
 
         try {
             await handleMultiImage();
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleAddModelOk = async () => {
+        setIsUploading(true);
+        setAddModelModalVisible(false);
+
+        try {
+            await handleModel();
         } finally {
             setIsUploading(false);
         }
@@ -114,6 +132,25 @@ const ViewFile = () => {
             notification.error({
                 message: 'Error',
                 description: 'Unsupported file type. Please choose a TIF (.tif) file.',
+            });
+        }
+    };
+
+    const handleModelChange = (event) => {
+        const file = event.target.files[0];
+
+        if (!file) {
+            return;
+        }
+
+        const fileType = file.name.split('.').pop().toLowerCase();
+
+        if (fileType === 'h5') {
+            setH5File(file);
+        } else {
+            notification.error({
+                message: 'Error',
+                description: 'Unsupported file type. Please choose a H5 (.h5) file.',
             });
         }
     };
@@ -172,6 +209,45 @@ const ViewFile = () => {
             formData.append('tif', tifFile);
 
             await axios.post('http://localhost:8080/image/multi', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                    UserId: localStorage.getItem('userId'),
+                },
+            });
+
+            notification.success({
+                message: 'Success',
+                description: 'Files uploaded successfully.',
+            });
+
+            await fetchImageFile();
+        } catch (error) {
+            console.error('Error uploading files:', error.response?.data || error.message);
+
+            notification.error({
+                message: 'Error',
+                description: 'Failed to upload files. Please try again.',
+            });
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleModel = async () => {
+        try {
+            if (!h5File) {
+                notification.error({
+                    message: 'Error',
+                    description: 'Please choose a H5 (h5) file to upload.',
+                });
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('h5', h5File);
+
+            await axios.post('http://localhost:8080/predict/model', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -284,6 +360,10 @@ const ViewFile = () => {
                 <Button style={{marginLeft: '10px'}} onClick={showMultiModal} type="primary">
                     Upload Multispectral Image
                 </Button>
+
+                <Button style={{marginLeft: '10px'}} onClick={showModelModal} type="primary">
+                    Upload Model
+                </Button>
             </div>
 
             <Table columns={columns} dataSource={data}/>
@@ -326,6 +406,17 @@ const ViewFile = () => {
                 <p>TIF file</p>
                 <input type="file" accept=".tif" onChange={handleMultiChange}/>
             </Modal>
+
+            <Modal
+                title="Upload Model"
+                open={isAddModelModalVisible}
+                onOk={handleAddModelOk}
+                onCancel={handleCancel}
+            >
+                <p>H5 file</p>
+                <input type="file" accept=".h5" onChange={handleModelChange}/>
+            </Modal>
+
         </>
     );
 };

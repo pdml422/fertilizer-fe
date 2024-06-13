@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, Form, InputNumber, notification, Select} from "antd";
+import {Button, Col, Form, InputNumber, notification, Row, Select} from "antd";
 import axios from "axios";
 
 const ViewImage = () => {
@@ -139,38 +139,56 @@ const ViewImage = () => {
     return (
         <>
             <div>
-                <Form layout='inline' onFinish={viewImage}>
-                    <Form.Item label="Image" name="imageId" style={{width:'40%'}} rules={[{required:true, message: 'Please choose an image!'}]}>
-                        <Select options={options}/>
-                    </Form.Item>
+                <Form layout='inline' onFinish={viewImage} style={{width: '100%'}}>
+                    <Row justify="space-between" style={{ width: '100%' }}>
+                        <Col span={8}>
+                            <Form.Item label="Image" name="imageId"
+                                       rules={[{required: true, message: 'Please choose an image!'}]}>
+                                <Select options={options} style={{width: '100%'}}/>
+                            </Form.Item>
+                        </Col>
 
-                    <Form.Item label="Red" name="red" rules={[{required:true, message:'Please choose a value'}]}>
-                        <InputNumber min={0}/>
-                    </Form.Item>
+                        <Col span={3}>
+                            <Form.Item label="Red" name="red"
+                                       rules={[{required: true, message: 'Please choose a value'}]}>
+                                <InputNumber min={0} style={{width: '100%', position:'absolute', right:'0', top:'0'}}/>
+                            </Form.Item>
+                        </Col>
 
-                    <Form.Item label="Green" name="green" rules={[{required:true, message:'Please choose a value'}]}>
-                        <InputNumber min={0}/>
-                    </Form.Item>
+                        <Col span={3}>
+                            <Form.Item label="Green" name="green"
+                                       rules={[{required: true, message: 'Please choose a value'}]}>
+                                <InputNumber min={0} style={{width: '100%', position:'absolute', right:'0', top:'0'}}/>
+                            </Form.Item>
+                        </Col>
 
-                    <Form.Item label="Blue" name="blue" rules={[{required:true, message:'Please choose a value'}]}>
-                        <InputNumber min={0}/>
-                    </Form.Item>
+                        <Col span={3}>
+                            <Form.Item label="Blue" name="blue"
+                                       rules={[{required: true, message: 'Please choose a value'}]}>
+                                <InputNumber min={0} style={{width: '100%', position:'absolute', right:'0', top:'0'}}/>
+                            </Form.Item>
+                        </Col>
 
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">View Image</Button>
-                    </Form.Item>
-
+                        <Col span={3}>
+                            <Form.Item>
+                                <Button type="primary" htmlType="submit" style={{width: '80%'}}>
+                                    View Image
+                                </Button>
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 </Form>
-
             </div>
 
-            <div style={{justifyContent: 'center', marginTop:'10px'}}>
-                <img src={image} style={{width:'100%'}}/>
+
+            <div style={{justifyContent: 'center', marginTop: '10px'}}>
+                <img src={image} style={{width: '100%'}}/>
             </div>
 
 
         </>
-    );
+    )
+        ;
 
 };
 

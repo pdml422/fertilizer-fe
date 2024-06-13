@@ -6,7 +6,7 @@ import {
     ProfileOutlined,
     ArrowLeftOutlined,
     PictureOutlined,
-    FileOutlined, FolderOutlined, FolderOpenOutlined
+    FileOutlined, FolderOutlined, FolderOpenOutlined, LineChartOutlined
 } from '@ant-design/icons'
 import {Layout, Menu, Button, Space} from 'antd'
 import { Navigate, Outlet, Link } from 'react-router-dom'
@@ -76,6 +76,16 @@ const UserLayout = () => {
                             onClick={() => setCurrent('view-image')}
                         >
                             View Image
+                        </Menu.Item>
+                    </Link>
+
+                    <Link to="user/predict">
+                        <Menu.Item
+                            eventKey="predict"
+                            icon={<LineChartOutlined />}
+                            onClick={() => setCurrent('predict')}
+                        >
+                            Predict
                         </Menu.Item>
                     </Link>
 
