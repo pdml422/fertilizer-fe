@@ -317,23 +317,35 @@ const Predict = () => {
         )
     }
 
+    const formRef = useRef(null);
+
+    const handleImageClick = (e) => {
+        const stage = e.target.getStage();
+        const pos = stage.getPointerPosition();
+        const newX = Math.floor(pos.x * imgWidth / stageWidth);
+        const newY = Math.floor(pos.y * imgWidth / stageWidth);
+        setX(newX);
+        setY(newY);
+        formRef.current.setFieldsValue({ x: newX, y: newY });
+    }
+
     const SelectSection = () => {
 
         return (
             <div style={{marginTop: '20px'}} >
-                <Form onFinish={viewArea} style={{width: '100%'}}>
+                <Form onFinish={viewArea} style={{width: '100%'}} ref={formRef}>
                     <Row justify="space-around" style={{width: '100%'}}>
                         <Col span={6}>
                             <Form.Item label="X" name="x"
                                        rules={[{required: true, message: 'Please choose a number'}]}>
-                                <InputNumber min={0} />
+                                <InputNumber min={0} value={x} onChange={setX}/>
                             </Form.Item>
                         </Col>
 
                         <Col span={6}>
                             <Form.Item label="Y" name="y"
                                        rules={[{required: true, message: 'Please choose a number!'}]}>
-                                <InputNumber min={0} />
+                                <InputNumber min={0} value={y} onChange={setY}/>
                             </Form.Item>
                         </Col>
 
@@ -352,7 +364,7 @@ const Predict = () => {
 
                     <Stage width={stageWidth} height={stageHeight}>
                         <Layer>
-                            <Image image={SetImg(image)} scaleX={stageWidth / imgWidth} scaleY={stageWidth / imgWidth}/>
+                            <Image image={SetImg(image)} scaleX={stageWidth / imgWidth} scaleY={stageWidth / imgWidth} onClick={handleImageClick}/>
                             <Rect
                                 x={x * (stageWidth / imgWidth) - 72 * (stageWidth / imgWidth)}
                                 y={y * (stageWidth / imgWidth) - 72 * (stageWidth / imgWidth)}
@@ -478,13 +490,27 @@ const Predict = () => {
             <Modal open={modalOpen}
                    onOk={handleOk}
                    onCancel={handleOk}
+                   title={'Predicted Image'}
                    footer={[
-                <Button key="ok" type="primary" onClick={handleOk}>
-                    OK
-                </Button>
-            ]}>
-                <img src={imageCrop} style={{width: '50%'}}/>
-                {isLoading ? <Spin /> : <img src={imagePredict} style={{width: '50%'}}/>}
+                       <Button key="ok" type="primary" onClick={handleOk}>
+                           OK
+                       </Button>
+                   ]}>
+                {/*<img src={imageCrop} style={{width: '50%'}}/>*/}
+                {/*{isLoading ? <Spin /> : <img src={imagePredict} style={{width: '50%'}}/>}*/}
+
+                <div style={{display:'flex'}}>
+                    <div style={{width:'50%'}}>
+                        <img src={imageCrop} style={{width:'100%'}}/>
+                    </div>
+
+                    <div style={{width:'50%'}}>
+                        <Spin spinning={isLoading}>
+                            <img src={imagePredict} style={{width:'100%'}}/>
+                        </Spin>
+                    </div>
+                </div>
+
             </Modal>
 
         </>
